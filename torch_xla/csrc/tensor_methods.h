@@ -110,6 +110,14 @@ std::vector<XLATensorPtr> user_computation(
     const std::string& opname, absl::Span<const XLATensorPtr> inputs,
     runtime::ComputationClient::ComputationPtr computation);
 
+XLATensorPtr token_attention(const XLATensorPtr& q,
+                             const XLATensorPtr& k,
+                             const XLATensorPtr& v,
+                             const XLATensorPtr& kv_read_indices,
+                             const std::vector<int64_t>& seq_lens,
+                             double scale,
+                             bool prefill);
+
 //////////////////////////////////////////////////////////////////////////////
 // Quantization related ops here.
 //////////////////////////////////////////////////////////////////////////////

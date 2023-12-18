@@ -2194,6 +2194,25 @@ void InitXlaModuleBindings(py::module m) {
     xtensor->MarkDynamicDimension(dim);
   });
 
+  m.def("_xla_token_attention", [](const at::Tensor& q, const at::Tensor& k,
+                                   const at::Tensor& v, const at::Tensor& kv_read_indices,
+                                   const py::list& seq_lens, double scale, bool prefill) {
+    at::Tensor result;
+    {
+      NoGilSection nogil;
+      std::vector<int64_t> c_seq_lens;
+      for (auto& seq_len : seq_lens) {
+        c_seq_lens.push_back(seq_len.cast<int64_t>());
+      }
+      auto hidden = tensor_methods::token_attention(
+          bridge::GetXlaTensor(q), bridge::GetXlaTensor(k),
+          bridge::GetXlaTensor(v), bridge::GetXlaTensor(kv_read_indices),
+          c_seq_lens, scale, prefill);
+      result = bridge::AtenFromXlaTensor(std::move(hidden));
+    }
+    return result;
+  });
+
   // -------------Dynamo Integration API Start-------------------------
   /*
    * Return tensor ids and at::tensors for all DeviceData nodes that is needed

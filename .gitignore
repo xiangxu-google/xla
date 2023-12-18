@@ -1,4 +1,4 @@
-build/
+ssuild/
 dist/
 *.egg-info/
 torch_xla/lib/
@@ -30,3 +30,5 @@ torch_xla/csrc/version.cpp
 
 # Clangd cache directory
 .cache/*
+.ipynb_*
+build/*

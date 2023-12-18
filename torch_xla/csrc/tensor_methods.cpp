@@ -121,6 +121,7 @@
 #include "torch_xla/csrc/ops/svd.h"
 #include "torch_xla/csrc/ops/threshold.h"
 #include "torch_xla/csrc/ops/threshold_backward.h"
+#include "torch_xla/csrc/ops/token_attention.h"
 #include "torch_xla/csrc/ops/topk.h"
 #include "torch_xla/csrc/ops/triangular_solve.h"
 #include "torch_xla/csrc/ops/uniform.h"
@@ -625,6 +626,22 @@ std::vector<XLATensorPtr> user_computation(
   // logical_element_type in this case
   return inputs.front()->MakeOutputTensors(node,
                                            /*inherit_logical_type=*/false);
+}
+
+XLATensorPtr token_attention(const XLATensorPtr& q,
+                             const XLATensorPtr& k,
+                             const XLATensorPtr& v,
+                             const XLATensorPtr& kv_read_indices,
+                             const std::vector<int64_t>& seq_lens,
+                             double scale,
+                             bool prefill) {
+  torch::lazy::NodePtr node = torch::lazy::MakeNode<TokenAttention>(
+      q->GetIrValue(), k->GetIrValue(),
+      v->GetIrValue(), kv_read_indices->GetIrValue(),
+      seq_lens, scale, prefill);
+  return XLATensor::Create(torch::lazy::Value(node, 0),
+                           q->GetDevice(),
+                           q->dtype());
 }
 
 //////////////////////////////////////////////////////////////////////////////
